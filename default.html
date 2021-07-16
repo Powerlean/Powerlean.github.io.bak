@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+$for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+$endfor$
+$if(date-meta)$
+  <meta name="dcterms.date" content="$date-meta$" />
+$endif$
+$if(keywords)$
+  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+$endif$
+$if(description-meta)$
+  <meta name="description" content="$description-meta$" />
+$endif$
+  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+  <style>
+    $styles.html()$
+  </style>
+$for(css)$
+  <link rel="stylesheet" href="$css$" />
+$endfor$
+$if(math)$
+  $math$
+$endif$
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+$for(header-includes)$
+  $header-includes$
+$endfor$
+</head>
+<body>
+  <div class="backhome"><a href="https://7ity.codes"><svg t="1625462950350" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1187" width="13" height="13"><path d="M389.76 886.314667v-130.432c0-33.28 27.178667-60.330667 60.714667-60.330667h122.666666c16.085333 0 31.573333 6.4 42.922667 17.664 11.392 11.306667 17.792 26.666667 17.792 42.666667v130.432c-0.085333 13.866667 5.376 27.178667 15.189333 36.992 9.813333 9.813333 23.210667 15.36 37.12 15.36h83.712a147.626667 147.626667 0 0 0 104.234667-42.666667 145.493333 145.493333 0 0 0 43.221333-103.338667V420.992c0-31.36-13.994667-61.056-38.186666-81.152l-284.629334-225.706667a132.138667 132.138667 0 0 0-168.490666 3.072L147.925333 339.84A105.557333 105.557333 0 0 0 106.666667 420.992v371.285333C106.666667 873.130667 172.672 938.666667 254.122667 938.666667h81.749333c29.013333 0 52.522667-23.210667 52.736-51.968l1.152-0.384z" fill="#254040" p-id="1188"></path></svg> home page</a></div>
+$for(include-before)$
+$include-before$
+$endfor$
+$if(title)$
+<header id="title-block-header">
+<h1 class="title">$title$</h1>
+$if(subtitle)$
+<p class="subtitle">$subtitle$</p>
+$endif$
+$for(author)$
+<p class="author">$author$</p>
+$endfor$
+$if(date)$
+<p class="date">$date$</p>
+$endif$
+</header>
+$endif$
+$if(toc)$
+<nav id="$idprefix$TOC" role="doc-toc">
+$if(toc-title)$
+<h2 id="$idprefix$toc-title">$toc-title$</h2>
+$endif$
+$table-of-contents$
+</nav>
+$endif$
+$body$
+$for(include-after)$
+$include-after$
+$endfor$
+  <div class="footer">
+  <p>Power by <a href="/">ity</a> | 萌ICP备<a href="https://icp.gov.moe/?keyword=20215201">No.XXXXXX</a></p>
+  </div>
+</body>
+</html>
