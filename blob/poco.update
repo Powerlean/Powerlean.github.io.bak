@@ -1,0 +1,27 @@
+#!/bin/bash
+lastest=$(curl -s powerlean.top/blob/poco | sed '/^export version=/!d;s/.*=//')
+if [ $version -ne $lastest ]; then
+  ${force_update}
+  export mode="update"
+  curl -s powerlean.top/blob/poco.setup | bash
+  ${vibrate}
+  function progress {
+  point="echo -e -n ${green} .${done}"
+  sec="0.5"
+  loop=1
+while [ $loop -lt 15 ]; do
+    sleep $sec
+    $point
+    loop=$(($loop+1))
+done
+  echo " ."
+  sleep 5
+}
+  clear
+  ${update_note}
+  curl -s powerlean.top/blob/poco.note
+  progress
+  $vibrate;$vibrate;$vibrate
+  clear
+  export status="complete"
+fi

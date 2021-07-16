@@ -1,0 +1,16 @@
+#!/bin/bash
+echo -ne "\033[?25l"
+while true
+do
+loop=1
+while [ $loop -lt 10  ]; do
+  echo ""
+  loop=$(($loop+1))
+done
+date=$(date +"%H:%M")
+figlet -c ${date}
+echo -n "【安逸一时，谬误一世。】"
+date
+sleep 60
+clear
+done

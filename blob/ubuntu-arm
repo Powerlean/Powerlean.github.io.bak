@@ -1,0 +1,57 @@
+#!/bin/bash
+type=group
+apt update
+dir="/data/data/com.termux/files/home/ubufs"
+dirbd="/data/data/com.termux/files/home/ububd"
+url="http://mirrors.ustc.edu.cn/ubuntu-ports/"
+cat > /data/data/com.termux/files/usr/bin/ubuntu <<- EOM
+#!/bin/bash -e
+cd \$(dirname \$0)
+dir="/data/data/com.termux/files/home/ubufs"
+dirbd="/data/data/com.termux/files/home/ububd"
+unset LD_PRELOAD
+command="proot"
+command+=" --link2symlink"
+command+=" -0"
+command+=" -r \$dir"
+if [ -n "\$(ls -A \$dirbd)" ]; then
+    for f in \$dirbd/* ;do
+      . \$f
+    done
+fi
+command+=" -b /dev"
+command+=" -b /proc"
+command+=" -b \$dir/root:/dev/shm"
+## 挂载termux HOME目录到 /root (建议关闭)
+#command+=" -b /data/data/com.termux/files/home:/root"
+## 挂载手机/sdcard到 / (建议打开)
+command+=" -b /sdcard"
+command+=" -w /root"
+command+=" /usr/bin/env -i"
+command+=" HOME=/root"
+command+=" PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games"
+command+=" TERM=\$TERM"
+##修改语言，配置好locales之后取消下一行注释
+command+=" LANG=zh_CN.UTF-8"
+
+##默认命令行登录
+command+=" /bin/bash --login"
+com="\$@"
+if [ -z "\$1" ];then
+    exec \$command
+else
+    \$command -c "\$com"
+fi
+EOM
+chmod +x /data/data/com.termux/files/usr/bin/unubuntu
+cat > /data/data/com.termux/files/usr/bin/unubuntu <<- EOM
+rm -rf $HOME/ubu*; chmod +x /data/data/com.termux/files/usr/bin/ubuntu; rm -rf /data/data/com.termux/files/usr/bin/ubuntu; chmod +x /data/data/com.termux/files/usr/bin/unububtu; 
+EOM
+chmod +x /data/data/com.termux/files/usr/bin/unubuntu
+chmod +x /data/data/com.termux/files/usr/bin/ubuntu
+apt install debootstrap -y
+debootstrap --foreign --arch arm64 bionic ubufs $url
+unset LD_PRELOAD
+proot --link2symlink -0 -r $dir -b /dev -b /proc -b $dir/root:/dev/shm -w /root /usr/bin/env -i HOME=/root PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games TERM=$TERM /bin/bash --login -c 'cd /var/cache/apt/archives/; dpkg --force-all -i *.deb; dpkg -i dash*; dpkg -i klibc*; cd ~; touch ~/.hushlogin; echo Ubuntu-Android > /etc/hostname; echo "127.0.0.1 Ubuntu-Android" >> /etc/hosts; echo "127.0.0.1 localhost.localdomain localhost" > /etc/hosts; mkdir /etc/network; mkdir /etc/network/interfaces.d; echo "auto eth0" > /etc/network/interfaces.d/eth0; echo "iface eth0 inet dhcp" >> /etc/network/interfaces.d/eth0; echo "nameserver 127.0.1.1" > /etc/resolv.conf; echo "nameserver 8.8.8.8 " >> /etc/resolv.conf; echo -e "# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释\ndeb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic main restricted universe multiverse\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic main restricted universe multiverse\ndeb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-updates main restricted universe multiverse\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-updates main restricted universe multiverse\ndeb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-backports main restricted universe multiverse\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-backports main restricted universe multiverse\ndeb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-security main restricted universe multiverse\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-security main restricted universe multiverse\n\n# 预发布软件源，不建议启用\n# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-proposed main restricted universe multiverse\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ bionic-proposed main restricted universe multiverse" > /etc/apt/sources.list; apt update; apt upgrade -y;  apt install language-pack-zh-han*;rm -rf /debootstrap'
+echo "Use command 'ubuntu' to launch Ubuntu 18.04 LTS"
+echo "If you want to remove the Ubuntu 18.04 LTS,just run 'unubuntu'"
