@@ -1,36 +1,58 @@
-# This is a basic workflow to help you get started with Actions
+name: Publish
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install pandoc
+      run: |
+        # Create directory
+        mkdir -p ~/pandoc
+        cd ~/pandoc
+        # Download installer
+        curl -LsSo pandoc.deb https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-1-amd64.deb
+        # Extract pandoc binary
+        ar x pandoc.deb data.tar.gz && rm -f pandoc.deb
+        tar xvf data.tar.gz ./usr/bin/pandoc && rm -f data.tar.gz
+        mv usr/bin/pandoc . && rm -rf usr
+    - name: Publish
+      run: |
+        # Add pandoc to PATH
+        export PATH=$PATH:~/pandoc
+        # Create a temporary directory
+        export temp_dir=`mktemp -d -p ~`
+        (
+        # Preserve .git
+        mv .git $temp_dir
+        cd $temp_dir
+        # Switch branch
+        git fetch
+        git checkout gh-pages
+        )
+        # Build
+        python3 build.py
+        # Remove source files and README
+        find . -name index.md -delete
+        rm -rf README.md build.py pandoc.yaml
+        # Remove all dot files except . and ..
+        # https://unix.stackexchange.com/a/77313
+        rm -rf ..?* .[!.]*
+        # Restore .git
+        mv $temp_dir/.git .
+        rm -rf $temp_dir
+        # Set commit identity
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
+        # Publish
+        git add .
+        if [ -n "$(git status --porcelain)" ]; then
+          git commit -m "Publish `TZ='Asia/Shanghai' date`"
+          git push -f origin gh-pages
+        fi
